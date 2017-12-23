@@ -8,7 +8,7 @@ import os
 import time
 import sys
 import urllib, urllib2
-
+from mainapp.models import ExchangeCurrency
 
 class Command(BaseCommand):
     help = 'Tools for get curs'
@@ -51,11 +51,27 @@ class Command(BaseCommand):
         self.store('https://api.cryptonator.com/api/ticker/eth-usd', settings.ETHUSD_FILE)
         return True
 
+    def getofter(self):
+        for curr in ExchangeCurrency.objects.all():
+            url = 'https://api.cryptonator.com/api/ticker/{}'.format(curr.endpoint)
+            try:
+                jsdata = self.get_json(url)
+            except:
+                continue
+            try:
+                price = jsdata['ticker']['price']
+            except:
+                continue
+            curr.price = price
+            curr.save()
+        return True
+
     def handle(self, *args, **options):
         while True:
             try:
                 self.getbtcusd()
                 self.getethusd()
+                self.getofter()
                 time.sleep(10)
             except KeyboardInterrupt:
                 print 'Quit'

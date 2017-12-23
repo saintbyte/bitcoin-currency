@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from django.shortcuts import render
 from django.conf import settings
-
+from .models import ExchangeCurrency
 # Create your views here.
 def home(request):
     c = {}
@@ -16,4 +16,6 @@ def home(request):
         c['ethusd'] =  open(settings.ETHUSD_FILE ,'r').read()
     except:
         pass
+    c['currlist'] = []
+    c['currlist'] = ExchangeCurrency.objects.all()
     return render(request,'index.html',c)
